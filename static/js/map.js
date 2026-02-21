@@ -131,6 +131,24 @@ var MapCtrl = (function () {
                 }
             }
         }
+        var narvesenData = storeRawData.narvesen;
+        if (narvesenData) {
+            for (var k = 0; k < narvesenData.length; k++) {
+                var ns = narvesenData[k].store;
+                if (ns && ns.lat != null && ns.lng != null) {
+                    features.push({
+                        type: 'Feature',
+                        geometry: { type: 'Point', coordinates: [ns.lng, ns.lat] },
+                        properties: {
+                            name: 'Narvesen' + (ns.name ? ' \u2013 ' + ns.name : ''),
+                            chain: 'Narvesen',
+                            address: [ns.address, ns.city].filter(Boolean).join(', '),
+                            hours: '',
+                        },
+                    });
+                }
+            }
+        }
         if (!features.length) return;
         L.geoJSON({ type: 'FeatureCollection', features: features }, {
             pointToLayer: function (feature, latlng) {
@@ -153,8 +171,8 @@ var MapCtrl = (function () {
         }).addTo(storeLayer);
     }
 
-    function setStoreData(coopData, ngData) {
-        storeRawData = { coop: coopData, ng: ngData };
+    function setStoreData(coopData, ngData, narvesenData) {
+        storeRawData = { coop: coopData, ng: ngData, narvesen: narvesenData };
         if (overlayState.stores) {
             renderStoreLayer();
         }

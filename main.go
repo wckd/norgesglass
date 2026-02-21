@@ -39,6 +39,7 @@ func main() {
 	// API proxy routes
 	mux.HandleFunc("/api/ngu", handlers.NGUHandler)
 	mux.HandleFunc("/api/nve", handlers.NVEHandler)
+	mux.HandleFunc("/api/narvesen", handlers.NarvesenHandler)
 
 	// Static files (directory listings disabled)
 	mux.Handle("/", http.FileServer(noDirFS{http.Dir("static")}))

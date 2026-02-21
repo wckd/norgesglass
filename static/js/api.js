@@ -13,6 +13,7 @@ function haversineKm(lat1, lon1, lat2, lon2) {
 }
 
 let ngStoreCachePromise = null;
+let narvesenCachePromise = null;
 
 function ngTodayHours(openingHours, today) {
   if (!openingHours || !Array.isArray(openingHours.upcomingOpeningHours)) return '';
@@ -152,6 +153,32 @@ const API = {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`getCoopStores failed: ${res.status}`);
     return res.json();
+  },
+
+  async getNarvesenStores(lat, lon) {
+    if (!narvesenCachePromise) {
+      narvesenCachePromise = fetch('/api/narvesen')
+        .then((res) => {
+          if (!res.ok) throw new Error(`getNarvesenStores failed: ${res.status}`);
+          return res.json();
+        })
+        .then((data) => {
+          if (!Array.isArray(data)) throw new Error('getNarvesenStores: unexpected response');
+          return data;
+        })
+        .catch((err) => {
+          narvesenCachePromise = null;
+          throw err;
+        });
+    }
+    const stores = await narvesenCachePromise;
+    return stores
+      .map((s) => ({
+        store: s,
+        distKm: haversineKm(lat, lon, s.lat, s.lng),
+      }))
+      .filter((s) => s.distKm <= 5)
+      .sort((a, b) => a.distKm - b.distKm);
   },
 
   async getNorgesgruppenStores(lat, lon) {

@@ -1,6 +1,6 @@
 # Norgesglass
 
-A single-page web app that shows everything known about any Norwegian location by querying 15 public APIs simultaneously. Click a point on the map or search an address — panels progressively fill with weather, geology, nature reserves, cultural heritage, demographics, businesses, nearby stores, hydrology, and sunrise data.
+A single-page web app that shows everything known about any Norwegian location by querying 16 public APIs simultaneously. Click a point on the map or search an address — panels progressively fill with weather, geology, nature reserves, cultural heritage, demographics, businesses, nearby stores, hydrology, and sunrise data.
 
 ![Stack](https://img.shields.io/badge/Go-stdlib-00ADD8?logo=go)
 ![Stack](https://img.shields.io/badge/Frontend-Vanilla_JS-F7DF1E?logo=javascript)
@@ -23,7 +23,7 @@ A single-page web app that shows everything known about any Norwegian location b
 | Hydrologi | NVE (via proxy) | Nearby measurement stations |
 | Befolkning | SSB | Municipal population (latest year) |
 | Virksomheter | Brønnøysundregistrene | Recently founded businesses in municipality |
-| Butikker i nærheten | Coop, Norgesgruppen | Nearby grocery stores sorted by distance |
+| Butikker i nærheten | Coop, Norgesgruppen, Narvesen | Nearby grocery/convenience stores sorted by distance |
 
 ## Architecture
 
@@ -35,14 +35,16 @@ Browser (vanilla JS + Leaflet)
   |     Riksantikvaren, SSB, Bronnøysund, Coop, Norgesgruppen
   |
   '-- Via Go proxy (:8080):
-        /api/ngu  -> NGU WMS (GML -> JSON)
-        /api/nve  -> NVE HydAPI (API key injection)
+        /api/ngu      -> NGU WMS (GML -> JSON)
+        /api/nve      -> NVE HydAPI (API key injection)
+        /api/narvesen -> Narvesen (HTML scrape -> JSON, 24h cache)
 ```
 
-The Go backend does two things:
+The Go backend does three things:
 
 1. **NGU proxy** — Translates WMS GetFeatureInfo GML responses into JSON. The NGU geology service only returns XML/HTML, so the server parses the GML and extracts the relevant fields.
 2. **NVE proxy** — Injects the `NVE_API_KEY` header so the secret stays server-side.
+3. **Narvesen proxy** — Scrapes `narvesen.no/finn-butikk`, extracts store locations from HTML data attributes via regex, and caches the result in-memory for 24 hours. No CORS headers on the source, so a proxy is required.
 
 Everything else is called directly from the browser — no backend needed for Kartverket, MET, SSB, etc.
 
@@ -85,7 +87,8 @@ norgesglass/
 ├── handlers/
 │   ├── ngu.go               # NGU WMS proxy + GML parser
 │   ├── ngu_test.go          # Unit tests for GML parser + coord validation
-│   └── nve.go               # NVE HydAPI proxy (API key injection)
+│   ├── nve.go               # NVE HydAPI proxy (API key injection)
+│   └── narvesen.go          # Narvesen store scraper + 24h cache
 ├── static/
 │   ├── index.html           # SPA shell with 11 panels + map
 │   ├── css/style.css        # Dark theme, responsive
@@ -139,7 +142,8 @@ Covers GML parsing (bedrock, sediment, empty response, multiple features) and co
 | 13 | NVE HydAPI | API key | Go proxy |
 | 14 | Coop store finder | None | Browser |
 | 15 | Norgesgruppen store API | None | Browser |
+| 16 | Narvesen store finder | None | Go proxy |
 
 ## License
 
-Government data is provided by Norwegian agencies under their respective open data licenses. See [data.norge.no](https://data.norge.no/) for details. Store data is provided by [Coop](https://www.coop.no/) and [Norgesgruppen](https://www.norgesgruppen.no/) via their public APIs.
+Government data is provided by Norwegian agencies under their respective open data licenses. See [data.norge.no](https://data.norge.no/) for details. Store data is provided by [Coop](https://www.coop.no/), [Norgesgruppen](https://www.norgesgruppen.no/), and [Narvesen](https://www.narvesen.no/) via their public APIs/pages.

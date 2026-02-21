@@ -146,20 +146,21 @@ var App = (function () {
         Panels.setError(els.hydro, err.message);
       });
 
-    // --- Nearby stores (Coop + Norgesgruppen) ---
+    // --- Nearby stores (Coop + Norgesgruppen + Narvesen) ---
     Promise.all([
       API.getCoopStores(lat, lon).catch(() => null),
       API.getNorgesgruppenStores(lat, lon).catch(() => null),
+      API.getNarvesenStores(lat, lon).catch(() => null),
     ])
-      .then(([coopData, ngData]) => {
+      .then(([coopData, ngData, narvesenData]) => {
         if (stale()) return;
-        if (!coopData && !ngData) {
+        if (!coopData && !ngData && !narvesenData) {
           Panels.setError(els.stores, 'Kunne ikke hente butikkdata');
-          MapCtrl.setStoreData(null, null);
+          MapCtrl.setStoreData(null, null, null);
           return;
         }
-        Panels.renderStores(els.stores, coopData, ngData);
-        MapCtrl.setStoreData(coopData, ngData);
+        Panels.renderStores(els.stores, coopData, ngData, narvesenData);
+        MapCtrl.setStoreData(coopData, ngData, narvesenData);
       })
       .catch((err) => {
         if (stale()) return;

@@ -390,7 +390,7 @@ Panels.renderBusiness = function (el, data) {
     el.innerHTML = html;
 };
 
-Panels.renderStores = function (el, coopData, ngData) {
+Panels.renderStores = function (el, coopData, ngData, narvesenData) {
     const coopChains = {
         'prix': 'Coop Prix', 'extra': 'Coop Extra', 'mega': 'Coop Mega',
         'obs': 'Coop Obs', 'marked': 'Coop Marked', 'matkroken': 'Matkroken',
@@ -432,12 +432,30 @@ Panels.renderStores = function (el, coopData, ngData) {
         }
     }
 
+    if (narvesenData) {
+        for (const entry of narvesenData) {
+            const s = entry.store;
+            stores.push({
+                name: s.name || '',
+                chain: 'Narvesen',
+                distanceM: entry.distKm * 1000,
+                address: [s.address, s.city].filter(Boolean).join(', '),
+                hours: '',
+            });
+        }
+    }
+
     if (!stores.length) {
         setEmpty(el, 'Ingen butikker i nærheten');
         return;
     }
 
-    stores.sort((a, b) => a.distanceM - b.distanceM);
+    stores.sort((a, b) => {
+        if (a.distanceM == null && b.distanceM == null) return 0;
+        if (a.distanceM == null) return 1;
+        if (b.distanceM == null) return -1;
+        return a.distanceM - b.distanceM;
+    });
     const top = stores.slice(0, 10);
 
     let html = '';
