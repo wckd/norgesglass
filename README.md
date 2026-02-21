@@ -7,6 +7,8 @@ A single-page web app that shows everything known about any Norwegian location b
 ![Stack](https://img.shields.io/badge/Map-Leaflet-199900?logo=leaflet)
 ![Dependencies](https://img.shields.io/badge/External_deps-0-brightgreen)
 
+![Norgesglass showing Oslo](screenshots/norgesglass.jpeg)
+
 ## Data panels
 
 | Panel | Source | Data shown |
