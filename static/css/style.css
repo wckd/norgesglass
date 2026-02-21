@@ -1,0 +1,493 @@
+/* ============================================================
+   Norgesglass — Dark-themed Norwegian address lookup app
+   ============================================================ */
+
+
+/* ============================================================
+   CSS Custom Properties
+   ============================================================ */
+
+:root {
+  --bg: #1a1a2e;
+  --bg-panel: #16213e;
+  --bg-topbar: #0f3460;
+  --text: #e0e0e0;
+  --text-muted: #8a8a9a;
+  --accent: #e94560;
+  --accent-hover: #ff6b81;
+  --border: #2a2a4a;
+  --success: #4ecdc4;
+  --error: #e94560;
+  --warning: #f9a825;
+}
+
+
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ============================================================
+   Topbar
+   ============================================================ */
+
+.topbar {
+  height: 56px;
+  background: var(--bg-topbar);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 1rem;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.topbar-brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.search-wrapper {
+  flex: 1;
+  max-width: 500px;
+  position: relative;
+}
+
+#search-input {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.95rem;
+}
+
+#search-input::placeholder {
+  color: var(--text-muted);
+}
+
+#search-input:focus {
+  outline: 2px solid var(--accent);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+
+/* ============================================================
+   Search Results
+   ============================================================ */
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 0 0 8px 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  list-style: none;
+}
+
+.search-results li {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+}
+
+.search-results li:last-child {
+  border-bottom: none;
+}
+
+.search-results li:hover,
+.search-results li.active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.search-result-main {
+  font-size: 0.9rem;
+}
+
+.search-result-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+
+/* ============================================================
+   Layout
+   ============================================================ */
+
+.layout {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+
+/* ============================================================
+   Sidebar
+   ============================================================ */
+
+.sidebar {
+  width: 380px;
+  min-width: 380px;
+  overflow-y: auto;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--bg);
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+/* ============================================================
+   Map
+   ============================================================ */
+
+.map {
+  flex: 1;
+  min-height: 0; /* required for flex children */
+}
+
+
+/* ============================================================
+   Panels
+   ============================================================ */
+
+.panel {
+  background: var(--bg-panel);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.panel h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  padding: 0.75rem 1rem 0.5rem;
+  font-weight: 600;
+}
+
+.panel-content {
+  padding: 0 1rem 0.75rem;
+}
+
+.panel-content h3 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0.5rem 0 0.25rem;
+}
+
+.panel-content h3:first-child {
+  margin-top: 0;
+}
+
+
+/* ============================================================
+   Panel States
+   ============================================================ */
+
+.panel-placeholder {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.panel-loading {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+}
+
+.panel-loading::before {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.panel-error {
+  color: var(--error);
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+}
+
+.panel-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+
+/* ============================================================
+   Panel Data Display
+   ============================================================ */
+
+.panel-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.85rem;
+}
+
+.panel-row:last-child {
+  border-bottom: none;
+}
+
+.panel-label {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-right: 1rem;
+}
+
+.panel-value {
+  text-align: right;
+  word-break: break-word;
+}
+
+
+/* ============================================================
+   Forecast Strip
+   ============================================================ */
+
+.forecast-strip {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.forecast-strip::-webkit-scrollbar {
+  height: 4px;
+}
+
+.forecast-strip::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.forecast-strip::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.forecast-item {
+  min-width: 60px;
+  text-align: center;
+  padding: 0.4rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.forecast-temp {
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.forecast-time {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+
+/* ============================================================
+   Heritage & Nature Lists
+   ============================================================ */
+
+.heritage-item,
+.nature-item {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.85rem;
+}
+
+.heritage-item:last-child,
+.nature-item:last-child {
+  border-bottom: none;
+}
+
+.item-name {
+  font-weight: 500;
+  color: white;
+}
+
+.item-detail {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+
+/* ============================================================
+   Admin Summary
+   ============================================================ */
+
+.admin-summary {
+  padding: 0.1rem 0;
+}
+
+.admin-primary {
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.admin-secondary {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+
+/* ============================================================
+   Sun Strip
+   ============================================================ */
+
+.sun-strip {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem 0;
+}
+
+.sun-item {
+  flex: 1;
+  text-align: center;
+  padding: 0.4rem 0.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.sun-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: white;
+}
+
+.sun-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+
+/* ============================================================
+   Business Items
+   ============================================================ */
+
+.business-item {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.business-item:last-child {
+  border-bottom: none;
+}
+
+.business-name {
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: white;
+}
+
+.business-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.2rem;
+}
+
+.business-tag {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.business-orgnr {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
+
+/* ============================================================
+   Mobile (max-width: 700px)
+   ============================================================ */
+
+@media (max-width: 700px) {
+  .layout {
+    flex-direction: column-reverse;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: unset;
+    max-height: 50vh;
+  }
+
+  .map {
+    min-height: 50vh;
+  }
+}

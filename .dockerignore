@@ -1,0 +1,4 @@
+norgesglass
+*.exe
+.git
+.env

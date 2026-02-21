@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Norgesglass</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin="">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-brand">Norgesglass</div>
+    <div class="search-wrapper">
+      <input type="search" id="search-input" placeholder="Søk etter adresse..."
+             autocomplete="off" role="combobox" aria-expanded="false"
+             aria-controls="search-results" aria-autocomplete="list">
+      <ul id="search-results" role="listbox" class="search-results" hidden></ul>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar" id="sidebar">
+
+      <section class="panel" id="panel-admin">
+        <h2>Administrativ enhet</h2>
+        <div class="panel-content" id="admin-content">
+          <p class="panel-placeholder">Søk etter en adresse for å se data</p>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-weather">
+        <h2>Vær</h2>
+        <div class="panel-content" id="weather-content">
+          <p class="panel-placeholder">Søk etter en adresse for å se data</p>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-sun">
+        <h2>Sol og dagslys</h2>
+        <div class="panel-content" id="sun-content">
+          <p class="panel-placeholder">Søk etter en adresse for å se data</p>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-nature">
+        <h2>Naturvernområder</h2>
+        <div class="panel-content" id="nature-content">
+          <p class="panel-placeholder">Søk etter en adresse for å se data</p>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-placenames">
+        <h2>Stedsnavn i nærheten</h2>
+        <div class="panel-content" id="placenames-content">
+          <p class="panel-placeholder">Søk etter en adresse for å se data</p>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-geology">
+        <h2>Geologi</h2>
+        <div class="panel-content" id="geology-content">
+          <p class="panel-placeholder">Søk etter en adresse for å se data</p>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-heritage">
+        <h2>Kulturminner</h2>
+        <div class="panel-content" id="heritage-content">
+          <p class="panel-placeholder">Søk etter en adresse for å se data</p>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-hydro">
+        <h2>Hydrologi</h2>
+        <div class="panel-content" id="hydro-content">
+          <p class="panel-placeholder">Søk etter en adresse for å se data</p>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-population">
+        <h2>Befolkning</h2>
+        <div class="panel-content" id="population-content">
+          <p class="panel-placeholder">Søk etter en adresse for å se data</p>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-business">
+        <h2>Virksomheter</h2>
+        <div class="panel-content" id="business-content">
+          <p class="panel-placeholder">Søk etter en adresse for å se data</p>
+        </div>
+      </section>
+
+    </aside>
+
+    <div id="map" class="map"></div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin="" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/map.js" defer></script>
+  <script src="js/panels.js" defer></script>
+  <script src="js/app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+norgesglass
+*.exe
+.env
+.DS_Store
