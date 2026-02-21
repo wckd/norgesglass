@@ -260,7 +260,9 @@ var MapCtrl = (function () {
     }
 
     function panTo(lat, lon, zoom) {
-        map.setView([lat, lon], zoom !== undefined ? zoom : 14);
+        var current = map.getZoom();
+        var target = zoom !== undefined ? zoom : Math.max(current, 14);
+        map.setView([lat, lon], target);
     }
 
     function getMap() {
