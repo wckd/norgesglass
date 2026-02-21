@@ -16,9 +16,11 @@ var MapCtrl = (function () {
 
     var heritageLayer = L.layerGroup();
     var natureLayer = L.layerGroup();
+    var storeLayer = L.layerGroup();
     var heritageData = null;
     var natureData = null;
-    var overlayState = { heritage: false, nature: false };
+    var storeRawData = null;
+    var overlayState = { heritage: false, nature: false, stores: false };
 
     var heritageStyle = {
         color: '#f9a825',
@@ -68,11 +70,103 @@ var MapCtrl = (function () {
         }
     }
 
+    var coopChainLabels = {
+        'prix': 'Prix', 'extra': 'Extra', 'mega': 'Mega',
+        'obs': 'Obs', 'marked': 'Marked', 'matkroken': 'Matkroken',
+        'byggmix': 'Byggmix', 'elektro': 'Elektro',
+    };
+    var ngChainLabels = {
+        '1100': 'Kiwi', '1210': 'Spar', '1220': 'Joker',
+        '1270': 'Nærbutikken', '1300': 'Meny', '1410': 'Mix',
+        '1800': 'Deli de Luca', '4150': 'Snarkjøp',
+        '9944': 'Esso', '9947': 'Esso',
+    };
+
+    function escText(str) {
+        var el = document.createElement('span');
+        el.textContent = str;
+        return el.innerHTML;
+    }
+
+    function renderStoreLayer() {
+        storeLayer.clearLayers();
+        if (!storeRawData) return;
+        var features = [];
+        var coopData = storeRawData.coop;
+        var ngData = storeRawData.ng;
+        if (coopData && coopData.stores) {
+            for (var i = 0; i < coopData.stores.length; i++) {
+                var s = coopData.stores[i];
+                if (s.latitude != null && s.longitude != null) {
+                    var addr = s.address || {};
+                    features.push({
+                        type: 'Feature',
+                        geometry: { type: 'Point', coordinates: [s.longitude, s.latitude] },
+                        properties: {
+                            name: s.name || '',
+                            chain: coopChainLabels[s.chain] || (s.chain ? s.chain.charAt(0).toUpperCase() + s.chain.slice(1) : 'Coop'),
+                            address: [addr.street, [addr.zipCode, addr.city].filter(Boolean).join(' ')].filter(Boolean).join(', '),
+                            hours: typeof s.openingHours === 'string' ? s.openingHours : '',
+                        },
+                    });
+                }
+            }
+        }
+        if (ngData) {
+            for (var j = 0; j < ngData.length; j++) {
+                var entry = ngData[j];
+                var d = entry.store && entry.store.storeDetails;
+                if (d && d.position) {
+                    var org = d.organization || {};
+                    features.push({
+                        type: 'Feature',
+                        geometry: { type: 'Point', coordinates: [d.position.lng, d.position.lat] },
+                        properties: {
+                            name: d.storeName || '',
+                            chain: ngChainLabels[d.chainId] || (d.storeName ? d.storeName.split(' ')[0] : ''),
+                            address: [org.address, [org.postalCode, org.city].filter(Boolean).join(' ')].filter(Boolean).join(', '),
+                            hours: entry.hours || '',
+                        },
+                    });
+                }
+            }
+        }
+        if (!features.length) return;
+        L.geoJSON({ type: 'FeatureCollection', features: features }, {
+            pointToLayer: function (feature, latlng) {
+                var label = feature.properties.name || 'Butikk';
+                var icon = L.divIcon({
+                    className: 'store-marker',
+                    html: '<span class="store-marker-label">' + escText(label) + '</span>',
+                    iconSize: null,
+                    iconAnchor: [20, 12],
+                });
+                return L.marker(latlng, { icon: icon });
+            },
+            onEachFeature: function (feature, layer) {
+                var p = feature.properties;
+                var tip = '<strong>' + escText(p.name) + '</strong>';
+                if (p.address) tip += '<br>' + escText(p.address);
+                if (p.hours) tip += '<br>' + escText(p.hours);
+                layer.bindTooltip(tip);
+            },
+        }).addTo(storeLayer);
+    }
+
+    function setStoreData(coopData, ngData) {
+        storeRawData = { coop: coopData, ng: ngData };
+        if (overlayState.stores) {
+            renderStoreLayer();
+        }
+    }
+
     function clearOverlays() {
         heritageData = null;
         natureData = null;
+        storeRawData = null;
         heritageLayer.clearLayers();
         natureLayer.clearLayers();
+        storeLayer.clearLayers();
     }
 
     // -----------------------------------------------------------------------
@@ -123,6 +217,24 @@ var MapCtrl = (function () {
                 }
             });
 
+            var btnStores = L.DomUtil.create('button', 'overlay-toggle-btn', container);
+            btnStores.textContent = 'Butikker';
+            btnStores.type = 'button';
+            btnStores.setAttribute('aria-pressed', 'false');
+
+            btnStores.addEventListener('click', function () {
+                overlayState.stores = !overlayState.stores;
+                btnStores.setAttribute('aria-pressed', String(overlayState.stores));
+                if (overlayState.stores) {
+                    btnStores.classList.add('active-stores');
+                    storeLayer.addTo(map);
+                    renderStoreLayer();
+                } else {
+                    btnStores.classList.remove('active-stores');
+                    map.removeLayer(storeLayer);
+                }
+            });
+
             return container;
         },
     });
@@ -161,6 +273,7 @@ var MapCtrl = (function () {
         getMap: getMap,
         setHeritageData: setHeritageData,
         setNatureData: setNatureData,
+        setStoreData: setStoreData,
         clearOverlays: clearOverlays,
     };
 }());

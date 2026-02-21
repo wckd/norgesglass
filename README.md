@@ -23,6 +23,7 @@ A single-page web app that shows everything known about any Norwegian location b
 | Hydrologi | NVE (via proxy) | Nearby measurement stations |
 | Befolkning | SSB | Municipal population (latest year) |
 | Virksomheter | Brønnøysundregistrene | Recently founded businesses in municipality |
+| Butikker i nærheten | Coop, Norgesgruppen | Nearby grocery stores sorted by distance |
 
 ## Architecture
 
@@ -31,7 +32,7 @@ Browser (vanilla JS + Leaflet)
   |
   |-- Direct calls (CORS ok):
   |     Kartverket, MET Norway, Miljodirektoratet,
-  |     Riksantikvaren, SSB, Bronnøysund
+  |     Riksantikvaren, SSB, Bronnøysund, Coop, Norgesgruppen
   |
   '-- Via Go proxy (:8080):
         /api/ngu  -> NGU WMS (GML -> JSON)
@@ -136,6 +137,8 @@ Covers GML parsing (bedrock, sediment, empty response, multiple features) and co
 | 11 | Bronnøysundregistrene | None | Browser |
 | 12 | NGU WMS | None | Go proxy |
 | 13 | NVE HydAPI | API key | Go proxy |
+| 14 | Coop store finder | None | Browser |
+| 15 | Norgesgruppen store API | None | Browser |
 
 ## License
 

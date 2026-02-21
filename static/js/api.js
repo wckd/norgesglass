@@ -2,6 +2,30 @@
 
 const trunc = (v, dp = 4) => parseFloat(Number(v).toFixed(dp));
 
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+let ngStoreCachePromise = null;
+
+function ngTodayHours(openingHours, today) {
+  if (!openingHours || !Array.isArray(openingHours.upcomingOpeningHours)) return '';
+  for (const day of openingHours.upcomingOpeningHours) {
+    if (day.date === today) {
+      if (day.closed) return 'Stengt';
+      if (day.opens && day.closes) return day.opens + '\u2013' + day.closes;
+      return '';
+    }
+  }
+  return '';
+}
+
 const API = {
 
   async searchAddress(query) {
@@ -119,6 +143,44 @@ const API = {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`getHydrology failed: ${res.status}`);
     return res.json();
+  },
+
+  async getCoopStores(lat, lon) {
+    const d = 0.045;
+    const dLon = d / Math.cos(lat * Math.PI / 180);
+    const url = `https://www.coop.no/api/client/stores/FindByBoundingBox?latitude=${lat}&longitude=${lon}&northWestLatitude=${lat + d}&northWestLongitude=${lon - dLon}&southEastLatitude=${lat - d}&southEastLongitude=${lon + dLon}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`getCoopStores failed: ${res.status}`);
+    return res.json();
+  },
+
+  async getNorgesgruppenStores(lat, lon) {
+    if (!ngStoreCachePromise) {
+      ngStoreCachePromise = fetch('https://api.ngdata.no/sylinder/stores/v1/extended-info')
+        .then((res) => {
+          if (!res.ok) throw new Error(`getNorgesgruppenStores failed: ${res.status}`);
+          return res.json();
+        })
+        .then((data) => {
+          if (!Array.isArray(data)) throw new Error('getNorgesgruppenStores: unexpected response');
+          return data;
+        })
+        .catch((err) => {
+          ngStoreCachePromise = null;
+          throw err;
+        });
+    }
+    const stores = await ngStoreCachePromise;
+    const today = new Date().toISOString().slice(0, 10);
+    return stores
+      .filter((s) => s.storeDetails && s.storeDetails.position)
+      .map((s) => ({
+        store: s,
+        distKm: haversineKm(lat, lon, s.storeDetails.position.lat, s.storeDetails.position.lng),
+        hours: ngTodayHours(s.openingHours, today),
+      }))
+      .filter((s) => s.distKm <= 5)
+      .sort((a, b) => a.distKm - b.distKm);
   },
 
 };

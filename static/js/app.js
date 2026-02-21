@@ -28,6 +28,7 @@ var App = (function () {
     hydro:      document.getElementById('hydro-content'),
     population: document.getElementById('population-content'),
     business:   document.getElementById('business-content'),
+    stores:     document.getElementById('stores-content'),
   };
 
   // -------------------------------------------------------------------------
@@ -96,6 +97,7 @@ var App = (function () {
       .catch((err) => {
         if (stale()) return;
         Panels.setError(els.nature, err.message);
+        MapCtrl.setNatureData(null);
       });
 
     // --- Place names ---
@@ -130,6 +132,7 @@ var App = (function () {
       .catch((err) => {
         if (stale()) return;
         Panels.setError(els.heritage, err.message);
+        MapCtrl.setHeritageData(null);
       });
 
     // --- Hydrology ---
@@ -141,6 +144,26 @@ var App = (function () {
       .catch((err) => {
         if (stale()) return;
         Panels.setError(els.hydro, err.message);
+      });
+
+    // --- Nearby stores (Coop + Norgesgruppen) ---
+    Promise.all([
+      API.getCoopStores(lat, lon).catch(() => null),
+      API.getNorgesgruppenStores(lat, lon).catch(() => null),
+    ])
+      .then(([coopData, ngData]) => {
+        if (stale()) return;
+        if (!coopData && !ngData) {
+          Panels.setError(els.stores, 'Kunne ikke hente butikkdata');
+          MapCtrl.setStoreData(null, null);
+          return;
+        }
+        Panels.renderStores(els.stores, coopData, ngData);
+        MapCtrl.setStoreData(coopData, ngData);
+      })
+      .catch((err) => {
+        if (stale()) return;
+        Panels.setError(els.stores, err.message);
       });
 
     // --- Admin unit → then population + businesses ---

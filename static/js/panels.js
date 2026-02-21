@@ -390,6 +390,79 @@ Panels.renderBusiness = function (el, data) {
     el.innerHTML = html;
 };
 
+Panels.renderStores = function (el, coopData, ngData) {
+    const coopChains = {
+        'prix': 'Coop Prix', 'extra': 'Coop Extra', 'mega': 'Coop Mega',
+        'obs': 'Coop Obs', 'marked': 'Coop Marked', 'matkroken': 'Matkroken',
+        'byggmix': 'Byggmix', 'elektro': 'Coop Elektro',
+    };
+    const ngChains = {
+        '1100': 'Kiwi', '1210': 'Spar', '1220': 'Joker',
+        '1270': 'Nærbutikken', '1300': 'Meny', '1410': 'Mix',
+        '1800': 'Deli de Luca', '4150': 'Snarkjøp',
+        '9944': 'Esso', '9947': 'Esso',
+    };
+
+    const stores = [];
+
+    if (coopData && coopData.stores) {
+        for (const s of coopData.stores) {
+            const addr = s.address || {};
+            stores.push({
+                name: s.name || '',
+                chain: coopChains[s.chain] || (s.chain ? 'Coop ' + s.chain.charAt(0).toUpperCase() + s.chain.slice(1) : 'Coop'),
+                distanceM: typeof s.distance === 'number' ? s.distance : null,
+                address: [addr.street, [addr.zipCode, addr.city].filter(Boolean).join(' ')].filter(Boolean).join(', '),
+                hours: typeof s.openingHours === 'string' ? s.openingHours : '',
+            });
+        }
+    }
+
+    if (ngData) {
+        for (const entry of ngData) {
+            const d = entry.store.storeDetails;
+            const org = d.organization || {};
+            stores.push({
+                name: d.storeName || '',
+                chain: ngChains[d.chainId] || (d.storeName ? d.storeName.split(' ')[0] : ''),
+                distanceM: entry.distKm * 1000,
+                address: [org.address, [org.postalCode, org.city].filter(Boolean).join(' ')].filter(Boolean).join(', '),
+                hours: entry.hours || '',
+            });
+        }
+    }
+
+    if (!stores.length) {
+        setEmpty(el, 'Ingen butikker i nærheten');
+        return;
+    }
+
+    stores.sort((a, b) => a.distanceM - b.distanceM);
+    const top = stores.slice(0, 10);
+
+    let html = '';
+    for (const s of top) {
+        const distStr = s.distanceM == null
+            ? ''
+            : s.distanceM < 1000
+                ? Math.round(s.distanceM) + ' m'
+                : (s.distanceM / 1000).toFixed(1) + ' km';
+        html += `<div class="store-item">` +
+            `<div class="store-header">` +
+                `<span class="item-name">${esc(s.name)}</span>` +
+                `<span class="store-distance">${esc(distStr)}</span>` +
+            `</div>` +
+            `<div class="store-meta">` +
+                `<span class="store-chain">${esc(s.chain)}</span>` +
+                (s.hours ? `<span class="store-hours">${esc(s.hours)}</span>` : '') +
+            `</div>` +
+            (s.address ? `<div class="item-detail">${esc(s.address)}</div>` : '') +
+            `</div>`;
+    }
+
+    el.innerHTML = html;
+};
+
 // ---------------------------------------------------------------------------
 // Expose state helpers on namespace so app.js can use them
 // ---------------------------------------------------------------------------
