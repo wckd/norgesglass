@@ -293,9 +293,9 @@ Panels.renderHeritage = function (el, data) {
     let html = '';
     for (const feature of data.features) {
         const attrs = feature.attributes || {};
-        const navn = attrs.Navn || attrs.KulturminneNavn || '';
-        const kategori = attrs.KulturminneKategori || attrs.Kategori || '';
-        const vern = attrs.Vernestatus || '';
+        const navn = attrs.navn || attrs.Navn || '';
+        const kategori = attrs.kulturminneKategori || attrs.KulturminneKategori || '';
+        const vern = attrs.vernetype || attrs.Vernestatus || '';
         const detail = [kategori, vern].filter(Boolean).join(' — ');
         html += `<div class="heritage-item">` +
             `<div class="item-name">${esc(navn)}</div>` +
