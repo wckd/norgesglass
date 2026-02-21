@@ -1,6 +1,6 @@
 # Norgesglass
 
-A single-page web app that shows everything known about any Norwegian location by querying 12+ government APIs simultaneously. Click a point on the map or search an address — panels progressively fill with weather, geology, nature reserves, cultural heritage, demographics, businesses, hydrology, and sunrise data.
+A single-page web app that shows everything known about any Norwegian location by querying 15 public APIs simultaneously. Click a point on the map or search an address — panels progressively fill with weather, geology, nature reserves, cultural heritage, demographics, businesses, nearby stores, hydrology, and sunrise data.
 
 ![Stack](https://img.shields.io/badge/Go-stdlib-00ADD8?logo=go)
 ![Stack](https://img.shields.io/badge/Frontend-Vanilla_JS-F7DF1E?logo=javascript)
@@ -87,10 +87,10 @@ norgesglass/
 │   ├── ngu_test.go          # Unit tests for GML parser + coord validation
 │   └── nve.go               # NVE HydAPI proxy (API key injection)
 ├── static/
-│   ├── index.html           # SPA shell with 10 panels + map
+│   ├── index.html           # SPA shell with 11 panels + map
 │   ├── css/style.css        # Dark theme, responsive
 │   └── js/
-│       ├── api.js           # 12 API fetch functions (pure, no DOM)
+│       ├── api.js           # 15 API fetch functions (pure, no DOM)
 │       ├── map.js           # Leaflet init + Kartverket tiles + GeoJSON overlays
 │       ├── panels.js        # Panel renderers (XSS-safe)
 │       └── app.js           # Orchestration, search, stale-fetch guard
@@ -108,7 +108,7 @@ norgesglass/
 
 **Progressive panel states.** Each panel independently shows loading, error, or empty states. One API being down doesn't affect the others.
 
-**Map overlays.** Kulturminner and Naturvernområder data is fetched as GeoJSON with geometry. Toggle buttons in the top-right corner of the map render the features as styled polygons/markers (amber for heritage, green for nature reserves). Overlays persist across location changes and auto-update with new data.
+**Map overlays.** Kulturminner, Naturvernområder, and nearby stores can be toggled on the map via buttons in the top-right corner. Heritage sites render as amber polygons/markers, nature reserves as green, and stores as blue labeled markers with name, address, and opening hours on hover. Overlays persist across location changes and auto-update with new data.
 
 **No build step.** The frontend is vanilla JS with no transpilation, bundling, or node_modules. Edit a file, refresh the browser.
 
@@ -142,4 +142,4 @@ Covers GML parsing (bedrock, sediment, empty response, multiple features) and co
 
 ## License
 
-Data is provided by Norwegian government agencies under their respective open data licenses. See [data.norge.no](https://data.norge.no/) for details.
+Government data is provided by Norwegian agencies under their respective open data licenses. See [data.norge.no](https://data.norge.no/) for details. Store data is provided by [Coop](https://www.coop.no/) and [Norgesgruppen](https://www.norgesgruppen.no/) via their public APIs.
