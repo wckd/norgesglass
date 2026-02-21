@@ -189,7 +189,7 @@ Panels.renderNature = function (el, data) {
 
     let html = '';
     for (const feature of data.features) {
-        const attrs = feature.attributes || {};
+        const attrs = feature.properties || {};
         const navn = attrs.offisieltNavn || attrs.navn || '';
         const verneform = attrs.verneform || attrs.vernefom || '';
         let vernedato = '';
@@ -292,7 +292,7 @@ Panels.renderHeritage = function (el, data) {
 
     let html = '';
     for (const feature of data.features) {
-        const attrs = feature.attributes || {};
+        const attrs = feature.properties || {};
         const navn = attrs.navn || attrs.Navn || '';
         const kategori = attrs.kulturminneKategori || attrs.KulturminneKategori || '';
         const vern = attrs.vernetype || attrs.Vernestatus || '';

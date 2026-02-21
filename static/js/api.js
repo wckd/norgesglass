@@ -64,7 +64,7 @@ const API = {
     const latMax = lat + 0.05;
     const lonMin = lon - 0.05;
     const lonMax = lon + 0.05;
-    const url = `https://kart.miljodirektoratet.no/arcgis/rest/services/vern/MapServer/0/query?where=1%3D1&geometry=${lonMin},${latMin},${lonMax},${latMax}&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=*&returnGeometry=false&f=json`;
+    const url = `https://kart.miljodirektoratet.no/arcgis/rest/services/vern/MapServer/0/query?where=1%3D1&geometry=${lonMin},${latMin},${lonMax},${latMax}&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=*&returnGeometry=true&resultRecordCount=50&f=geojson`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`getNatureReserves failed: ${res.status}`);
     return res.json();
@@ -82,7 +82,7 @@ const API = {
     const latMax = lat + 0.005;
     const lonMin = lon - 0.005;
     const lonMax = lon + 0.005;
-    const url = `https://kart.ra.no/arcgis/rest/services/Distribusjon/Kulturminner20180301/MapServer/7/query?where=1%3D1&geometry=${lonMin},${latMin},${lonMax},${latMax}&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=*&returnGeometry=false&f=json`;
+    const url = `https://kart.ra.no/arcgis/rest/services/Distribusjon/Kulturminner20180301/MapServer/7/query?where=1%3D1&geometry=${lonMin},${latMin},${lonMax},${latMax}&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=*&returnGeometry=true&resultRecordCount=50&f=geojson`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`getCulturalHeritage failed: ${res.status}`);
     return res.json();

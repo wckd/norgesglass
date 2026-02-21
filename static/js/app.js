@@ -52,6 +52,7 @@ var App = (function () {
 
     MapCtrl.placeMarker(lat, lon);
     MapCtrl.panTo(lat, lon);
+    MapCtrl.clearOverlays();
 
     // Scroll sidebar to top and reset all panels to loading
     var sidebar = document.getElementById('sidebar');
@@ -90,6 +91,7 @@ var App = (function () {
       .then((data) => {
         if (stale()) return;
         Panels.renderNature(els.nature, data);
+        MapCtrl.setNatureData(data);
       })
       .catch((err) => {
         if (stale()) return;
@@ -123,6 +125,7 @@ var App = (function () {
       .then((data) => {
         if (stale()) return;
         Panels.renderHeritage(els.heritage, data);
+        MapCtrl.setHeritageData(data);
       })
       .catch((err) => {
         if (stale()) return;

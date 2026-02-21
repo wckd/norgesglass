@@ -16,10 +16,10 @@ A single-page web app that shows everything known about any Norwegian location b
 | Administrativ enhet | Kartverket | Kommune, fylke, kommunenummer |
 | Vær | MET Norway | Temperature, wind, humidity, precipitation, 6h forecast |
 | Sol og dagslys | MET Norway | Sunrise, solar noon, sunset, day length |
-| Naturvernområder | Miljødirektoratet | Nearby nature reserves, national parks, protection dates |
+| Naturvernområder | Miljødirektoratet | Nearby nature reserves, national parks, protection dates + map overlay |
 | Stedsnavn | Kartverket | Place names within 500m |
 | Geologi | NGU (via proxy) | Bedrock type, tectonic unit, sediment type |
-| Kulturminner | Riksantikvaren | Cultural heritage sites, protection status |
+| Kulturminner | Riksantikvaren | Cultural heritage sites, protection status + map overlay |
 | Hydrologi | NVE (via proxy) | Nearby measurement stations |
 | Befolkning | SSB | Municipal population (latest year) |
 | Virksomheter | Brønnøysundregistrene | Recently founded businesses in municipality |
@@ -90,7 +90,7 @@ norgesglass/
 │   ├── css/style.css        # Dark theme, responsive
 │   └── js/
 │       ├── api.js           # 12 API fetch functions (pure, no DOM)
-│       ├── map.js           # Leaflet init + Kartverket tiles
+│       ├── map.js           # Leaflet init + Kartverket tiles + GeoJSON overlays
 │       ├── panels.js        # Panel renderers (XSS-safe)
 │       └── app.js           # Orchestration, search, stale-fetch guard
 ├── Dockerfile               # Multi-stage build (alpine, runs as nobody)
@@ -106,6 +106,8 @@ norgesglass/
 **XSS protection.** Every string from an external API passes through an `esc()` function before HTML insertion. Search results use `createElement`/`textContent` instead of `innerHTML`.
 
 **Progressive panel states.** Each panel independently shows loading, error, or empty states. One API being down doesn't affect the others.
+
+**Map overlays.** Kulturminner and Naturvernområder data is fetched as GeoJSON with geometry. Toggle buttons in the top-right corner of the map render the features as styled polygons/markers (amber for heritage, green for nature reserves). Overlays persist across location changes and auto-update with new data.
 
 **No build step.** The frontend is vanilla JS with no transpilation, bundling, or node_modules. Edit a file, refresh the browser.
 

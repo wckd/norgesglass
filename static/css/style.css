@@ -473,6 +473,52 @@ body {
 
 
 /* ============================================================
+   Map Overlay Toggle Control
+   ============================================================ */
+
+.overlay-toggle-control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(22, 33, 62, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.overlay-toggle-btn {
+  display: block;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.overlay-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text);
+}
+
+.overlay-toggle-btn.active-heritage {
+  background: rgba(249, 168, 37, 0.2);
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+.overlay-toggle-btn.active-nature {
+  background: rgba(78, 205, 196, 0.2);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+
+/* ============================================================
    Mobile (max-width: 700px)
    ============================================================ */
 
